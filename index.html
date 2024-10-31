@@ -16,8 +16,12 @@
     <script>
         // Инициализация SDK
         Telegram.WebApp.ready();
-        Telegram.WebApp.MainButton.text = "Начать";
-        Telegram.WebApp.MainButton.show();
+
+        // Небольшая задержка для показа кнопки
+        setTimeout(() => {
+            Telegram.WebApp.MainButton.text = "Начать";
+            Telegram.WebApp.MainButton.show();
+        }, 100); // 100 мс задержка для надёжной инициализации
 
         // Переменные для кнопок и вывода
         const showMenuBtn = document.getElementById('showMenuBtn');
