@@ -6,7 +6,7 @@
     <title>Telegram Web 3.0 App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Стили для полноэкранного интерфейса */
+        /* Стили для полноэкранного интерфейса с градиентом */
         body, html {
             margin: 0;
             padding: 0;
@@ -14,30 +14,28 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f9;
-            font-family: Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #000000, #0a3d62);
+            color: #f5f5f5; /* Цвет текста для контраста на темном фоне */
         }
         .app-container {
             width: 95%;
             max-width: 500px;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1); /* Легкая прозрачность для эффекта */
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            padding: 20px;
+            text-align: center;
         }
         .header {
-            background-color: #6200ea;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-            font-size: 1.5em;
+            font-size: 1.8em;
+            margin-bottom: 20px;
         }
         .content {
-            padding: 20px;
             flex: 1;
-            text-align: center;
         }
         .button-group {
             display: flex;
@@ -50,22 +48,21 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            color: #f5f5f5;
         }
         #showMenuBtn {
-            background-color: #03dac5;
-            color: #fff;
+            background-color: #1e90ff;
         }
         #showPromotionsBtn {
-            background-color: #bb86fc;
-            color: #fff;
+            background-color: #ff6347;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="header">Добро пожаловать в приложение сети кафе</div>
+        <div class="header">Добро пожаловать в наше приложение!</div>
         <div class="content">
-            <p>Здесь вы найдете меню и наши специальные предложения.</p>
+            <p>Изучите меню и наши специальные предложения, используя кнопки ниже.</p>
             <div class="button-group">
                 <button id="showMenuBtn">Показать меню</button>
                 <button id="showPromotionsBtn">Показать акции</button>
