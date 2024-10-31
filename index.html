@@ -31,7 +31,7 @@
             margin-bottom: 20px;
         }
         .button, button {
-            padding: 15px;
+            padding: 10px 15px;
             font-size: 1em;
             border: none;
             border-radius: 8px;
@@ -47,15 +47,33 @@
             align-items: center;
             margin-bottom: 10px;
         }
-        input[type="number"] {
-            width: 50px;
-            padding: 5px;
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #tableNumber {
+            padding: 8px;
+            font-size: 1em;
             border-radius: 5px;
             border: 1px solid #ccc;
             text-align: center;
+            width: 100%;
+            margin-top: 10px;
         }
         .hidden {
             display: none;
+        }
+        .back-btn {
+            background-color: #ff6347;
+        }
+        .authorize-btn {
+            background-color: #28a745;
         }
     </style>
 </head>
@@ -63,32 +81,25 @@
     <div class="app-container">
         <div class="header">Добро пожаловать!</div>
         <div id="mainScreen">
-            <p>Нажмите на кнопку ниже, чтобы сделать заказ.</p>
+            <p>Для доступа к заказам, пожалуйста, авторизуйтесь.</p>
+            <button id="authorizeBtn" class="button authorize-btn">Авторизоваться</button>
             <button id="makeOrderBtn" class="button">Сделать заказ</button>
         </div>
 
         <div id="menuScreen" class="hidden">
             <h2>Меню</h2>
             <form id="orderForm">
-                <!-- Список меню с количеством -->
-                <div class="menu-item"><span>Капучино</span><input type="number" min="0" value="0" data-item="Капучино"></div>
-                <div class="menu-item"><span>Эспрессо</span><input type="number" min="0" value="0" data-item="Эспрессо"></div>
-                <div class="menu-item"><span>Латте</span><input type="number" min="0" value="0" data-item="Латте"></div>
-                <div class="menu-item"><span>Американо</span><input type="number" min="0" value="0" data-item="Американо"></div>
-                <div class="menu-item"><span>Чай зелёный</span><input type="number" min="0" value="0" data-item="Чай зелёный"></div>
-                <div class="menu-item"><span>Чай чёрный</span><input type="number" min="0" value="0" data-item="Чай чёрный"></div>
-                <div class="menu-item"><span>Круассан</span><input type="number" min="0" value="0" data-item="Круассан"></div>
-                <div class="menu-item"><span>Пирожное</span><input type="number" min="0" value="0" data-item="Пирожное"></div>
-                <div class="menu-item"><span>Сэндвич</span><input type="number" min="0" value="0" data-item="Сэндвич"></div>
-                <div class="menu-item"><span>Салат</span><input type="number" min="0" value="0" data-item="Салат"></div>
-                
+                <!-- Динамическое меню -->
+                <div id="menuItems"></div>
+
                 <!-- Поле для номера стола -->
                 <div style="margin: 15px 0;">
                     <label for="tableNumber">Номер стола:</label>
-                    <input type="number" id="tableNumber" min="1" placeholder="Введите номер">
+                    <input type="number" id="tableNumber" min="1" placeholder="Введите номер стола">
                 </div>
-                <!-- Кнопка отправки заказа -->
+                <!-- Кнопки отправки и назад -->
                 <button type="button" id="submitOrderBtn" class="button">Отправить заказ</button>
+                <button type="button" id="backBtn" class="button back-btn">Назад</button>
             </form>
         </div>
 
@@ -103,44 +114,95 @@
         const output = document.getElementById('output');
         const makeOrderBtn = document.getElementById('makeOrderBtn');
         const submitOrderBtn = document.getElementById('submitOrderBtn');
+        const authorizeBtn = document.getElementById('authorizeBtn');
         const orderForm = document.getElementById('orderForm');
         const tableNumberInput = document.getElementById('tableNumber');
+        const backBtn = document.getElementById('backBtn');
+        const menuItemsDiv = document.getElementById('menuItems');
+
+        let user = null;
+
+        // База данных меню и клиентов
+        const menu = [
+            { name: "Капучино", quantity: 0 },
+            { name: "Эспрессо", quantity: 0 },
+            { name: "Латте", quantity: 0 },
+            { name: "Американо", quantity: 0 },
+            { name: "Чай зелёный", quantity: 0 },
+            { name: "Чай чёрный", quantity: 0 },
+            { name: "Круассан", quantity: 0 },
+            { name: "Пирожное", quantity: 0 },
+            { name: "Сэндвич", quantity: 0 },
+            { name: "Салат", quantity: 0 }
+        ];
+
+        // Проверка на авторизацию пользователя
+        function checkAuthorization() {
+            user = sessionStorage.getItem('user') || Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                sessionStorage.setItem('user', JSON.stringify(user));
+                document.getElementById('authorizeBtn').style.display = 'none';
+            } else {
+                output.innerHTML = "<p>Пожалуйста, авторизуйтесь.</p>";
+            }
+        }
+        checkAuthorization();
+
+        // Создание меню
+        function renderMenu() {
+            menuItemsDiv.innerHTML = '';
+            menu.forEach((item, index) => {
+                const menuItemDiv = document.createElement('div');
+                menuItemDiv.classList.add('menu-item');
+                menuItemDiv.innerHTML = `
+                    <span>${item.name}</span>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="changeQuantity(${index}, -1)">-</button>
+                        <span id="quantity-${index}">${item.quantity}</span>
+                        <button class="quantity-btn" onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
+                `;
+                menuItemsDiv.appendChild(menuItemDiv);
+            });
+        }
+
+        // Изменение количества блюд
+        function changeQuantity(index, delta) {
+            menu[index].quantity = Math.max(0, menu[index].quantity + delta);
+            document.getElementById(`quantity-${index}`).textContent = menu[index].quantity;
+        }
 
         // Переход на экран меню
         makeOrderBtn.addEventListener('click', () => {
             mainScreen.classList.add('hidden');
             menuScreen.classList.remove('hidden');
+            renderMenu();
         });
 
-        // Отправка заказа
+        // Назад на главный экран
+        backBtn.addEventListener('click', () => {
+            menuScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+        });
+
+        // Обработка отправки заказа
         submitOrderBtn.addEventListener('click', () => {
-            const orderItems = [];
             const tableNumber = tableNumberInput.value;
+            const selectedItems = menu.filter(item => item.quantity > 0);
 
             if (!tableNumber) {
-                alert('Пожалуйста, введите номер стола.');
+                alert('Введите номер стола.');
+                return;
+            }
+            if (selectedItems.length === 0) {
+                alert('Выберите хотя бы одно блюдо.');
                 return;
             }
 
-            // Сбор данных из формы заказа
-            orderForm.querySelectorAll('input[type="number"]').forEach(input => {
-                const quantity = parseInt(input.value);
-                const itemName = input.getAttribute('data-item');
-                if (quantity > 0) {
-                    orderItems.push({ name: itemName, quantity });
-                }
-            });
-
-            if (orderItems.length === 0) {
-                alert('Пожалуйста, выберите хотя бы одно блюдо.');
-                return;
-            }
-
-            // Отображение данных заказа
             menuScreen.classList.add('hidden');
             output.classList.remove('hidden');
             output.innerHTML = `<h2>Ваш заказ:</h2><p>Стол №${tableNumber}</p><ul>` +
-                orderItems.map(item => `<li>${item.name}: ${item.quantity} шт.</li>`).join('') +
+                selectedItems.map(item => `<li>${item.name}: ${item.quantity} шт.</li>`).join('') +
                 `</ul><p>Спасибо за заказ! Мы скоро его доставим.</p>`;
         });
     </script>
