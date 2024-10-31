@@ -3,36 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <title>Telegram Web 3.0 App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>Добро пожаловать в Web 3.0 приложение!</h1>
-    <p>Здесь скоро будет интерфейс для сети кафе.</p>
-    <script>
-        Telegram.WebApp.ready();
-        Telegram.WebApp.MainButton.text = "Начать";
-        Telegram.WebApp.MainButton.show();
-    </script>
     <h1>Добро пожаловать в приложение сети кафе</h1>
     <button id="showMenuBtn">Показать меню</button>
     <button id="showPromotionsBtn">Показать акции</button>
-    
+
     <div id="output" style="margin-top: 20px;"></div>
+
     <script>
         // Инициализация SDK
         Telegram.WebApp.ready();
-    
+        Telegram.WebApp.MainButton.text = "Начать";
+        Telegram.WebApp.MainButton.show();
+
         // Переменные для кнопок и вывода
         const showMenuBtn = document.getElementById('showMenuBtn');
         const showPromotionsBtn = document.getElementById('showPromotionsBtn');
         const output = document.getElementById('output');
-    
+
         // Обработчик для кнопки "Показать меню"
         showMenuBtn.addEventListener('click', () => {
             output.innerHTML = "<p>Наше меню: Кофе, Чай, Десерты</p>";
         });
-    
+
         // Обработчик для кнопки "Показать акции"
         showPromotionsBtn.addEventListener('click', () => {
             output.innerHTML = "<p>Акции: Скидка 10% на все напитки утром!</p>";
