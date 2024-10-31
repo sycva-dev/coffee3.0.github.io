@@ -76,8 +76,11 @@
     </div>
 
     <script>
-        // Инициализация SDK
+        // Инициализация SDK и перезагрузка страницы при каждом запуске
         Telegram.WebApp.ready();
+        Telegram.WebApp.onEvent("viewportChanged", function() {
+            location.reload(); // Перезагрузка страницы при каждом запуске
+        });
 
         // Переменные для кнопок и вывода
         const showMenuBtn = document.getElementById('showMenuBtn');
@@ -97,11 +100,12 @@
 
         // Обработчик для кнопки "Авторизоваться"
         authorizeBtn.addEventListener('click', () => {
+            // Пытаемся получить данные пользователя из initDataUnsafe
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
-                output.innerHTML = `<p>Добро пожаловать, ${user.first_name} ${user.last_name || ''}!</p><p>ID пользователя: ${user.id}</p>`;
+                output.innerHTML = `<p>Добро пожаловать, ${user.first_name} ${user.last_name || ''}!</p><p>ID пользователя: ${user.id}</p><p>Номер телефона не предоставлен Telegram API напрямую.</p>`;
             } else {
-                output.innerHTML = "<p>Авторизация не выполнена.</p>";
+                output.innerHTML = "<p>Авторизация не выполнена. Пожалуйста, предоставьте номер телефона в настройках Telegram.</p>";
             }
         });
     </script>
