@@ -16,12 +16,12 @@
             height: 100vh;
             font-family: Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #000000, #0a3d62);
-            color: #f5f5f5; /* Цвет текста для контраста на темном фоне */
+            color: #f5f5f5;
         }
         .app-container {
             width: 95%;
             max-width: 500px;
-            background-color: rgba(255, 255, 255, 0.1); /* Легкая прозрачность для эффекта */
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             overflow: hidden;
@@ -56,6 +56,9 @@
         #showPromotionsBtn {
             background-color: #ff6347;
         }
+        #authorizeBtn {
+            background-color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -66,6 +69,7 @@
             <div class="button-group">
                 <button id="showMenuBtn">Показать меню</button>
                 <button id="showPromotionsBtn">Показать акции</button>
+                <button id="authorizeBtn">Авторизоваться</button>
             </div>
             <div id="output" style="margin-top: 20px;"></div>
         </div>
@@ -78,6 +82,7 @@
         // Переменные для кнопок и вывода
         const showMenuBtn = document.getElementById('showMenuBtn');
         const showPromotionsBtn = document.getElementById('showPromotionsBtn');
+        const authorizeBtn = document.getElementById('authorizeBtn');
         const output = document.getElementById('output');
 
         // Обработчик для кнопки "Показать меню"
@@ -88,6 +93,16 @@
         // Обработчик для кнопки "Показать акции"
         showPromotionsBtn.addEventListener('click', () => {
             output.innerHTML = "<p>Акции: Скидка 10% на все напитки утром!</p>";
+        });
+
+        // Обработчик для кнопки "Авторизоваться"
+        authorizeBtn.addEventListener('click', () => {
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                output.innerHTML = `<p>Добро пожаловать, ${user.first_name} ${user.last_name || ''}!</p><p>ID пользователя: ${user.id}</p>`;
+            } else {
+                output.innerHTML = "<p>Авторизация не выполнена.</p>";
+            }
         });
     </script>
 </body>
