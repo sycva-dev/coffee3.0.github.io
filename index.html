@@ -6,7 +6,6 @@
     <title>Telegram Web 3.0 App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Стили для полноэкранного интерфейса с градиентом */
         body, html {
             margin: 0;
             padding: 0;
@@ -24,9 +23,6 @@
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
             padding: 20px;
             text-align: center;
         }
@@ -34,81 +30,118 @@
             font-size: 1.8em;
             margin-bottom: 20px;
         }
-        .content {
-            flex: 1;
-        }
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        button {
+        .button, button {
             padding: 15px;
             font-size: 1em;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             color: #f5f5f5;
-        }
-        #showMenuBtn {
             background-color: #1e90ff;
+            margin: 10px 0;
+            display: inline-block;
         }
-        #showPromotionsBtn {
-            background-color: #ff6347;
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        #authorizeBtn {
-            background-color: #28a745;
+        input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="header">Добро пожаловать в наше приложение!</div>
-        <div class="content">
-            <p>Изучите меню и наши специальные предложения, используя кнопки ниже.</p>
-            <div class="button-group">
-                <button id="showMenuBtn">Показать меню</button>
-                <button id="showPromotionsBtn">Показать акции</button>
-                <button id="authorizeBtn">Авторизоваться</button>
-            </div>
-            <div id="output" style="margin-top: 20px;"></div>
+        <div class="header">Добро пожаловать!</div>
+        <div id="mainScreen">
+            <p>Нажмите на кнопку ниже, чтобы сделать заказ.</p>
+            <button id="makeOrderBtn" class="button">Сделать заказ</button>
         </div>
+
+        <div id="menuScreen" class="hidden">
+            <h2>Меню</h2>
+            <form id="orderForm">
+                <!-- Список меню с количеством -->
+                <div class="menu-item"><span>Капучино</span><input type="number" min="0" value="0" data-item="Капучино"></div>
+                <div class="menu-item"><span>Эспрессо</span><input type="number" min="0" value="0" data-item="Эспрессо"></div>
+                <div class="menu-item"><span>Латте</span><input type="number" min="0" value="0" data-item="Латте"></div>
+                <div class="menu-item"><span>Американо</span><input type="number" min="0" value="0" data-item="Американо"></div>
+                <div class="menu-item"><span>Чай зелёный</span><input type="number" min="0" value="0" data-item="Чай зелёный"></div>
+                <div class="menu-item"><span>Чай чёрный</span><input type="number" min="0" value="0" data-item="Чай чёрный"></div>
+                <div class="menu-item"><span>Круассан</span><input type="number" min="0" value="0" data-item="Круассан"></div>
+                <div class="menu-item"><span>Пирожное</span><input type="number" min="0" value="0" data-item="Пирожное"></div>
+                <div class="menu-item"><span>Сэндвич</span><input type="number" min="0" value="0" data-item="Сэндвич"></div>
+                <div class="menu-item"><span>Салат</span><input type="number" min="0" value="0" data-item="Салат"></div>
+                
+                <!-- Поле для номера стола -->
+                <div style="margin: 15px 0;">
+                    <label for="tableNumber">Номер стола:</label>
+                    <input type="number" id="tableNumber" min="1" placeholder="Введите номер">
+                </div>
+                <!-- Кнопка отправки заказа -->
+                <button type="button" id="submitOrderBtn" class="button">Отправить заказ</button>
+            </form>
+        </div>
+
+        <div id="output" class="hidden"></div>
     </div>
 
     <script>
-        // Инициализация SDK и одноразовая перезагрузка при запуске приложения
         Telegram.WebApp.ready();
 
-        // Проверяем, было ли это первый запуск в данной сессии
-        if (!sessionStorage.getItem('reloaded')) {
-            sessionStorage.setItem('reloaded', 'true');
-            location.reload();
-        }
-
-        // Переменные для кнопок и вывода
-        const showMenuBtn = document.getElementById('showMenuBtn');
-        const showPromotionsBtn = document.getElementById('showPromotionsBtn');
-        const authorizeBtn = document.getElementById('authorizeBtn');
+        const mainScreen = document.getElementById('mainScreen');
+        const menuScreen = document.getElementById('menuScreen');
         const output = document.getElementById('output');
+        const makeOrderBtn = document.getElementById('makeOrderBtn');
+        const submitOrderBtn = document.getElementById('submitOrderBtn');
+        const orderForm = document.getElementById('orderForm');
+        const tableNumberInput = document.getElementById('tableNumber');
 
-        // Обработчик для кнопки "Показать меню"
-        showMenuBtn.addEventListener('click', () => {
-            output.innerHTML = "<p>Наше меню: Кофе, Чай, Десерты</p>";
+        // Переход на экран меню
+        makeOrderBtn.addEventListener('click', () => {
+            mainScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden');
         });
 
-        // Обработчик для кнопки "Показать акции"
-        showPromotionsBtn.addEventListener('click', () => {
-            output.innerHTML = "<p>Акции: Скидка 10% на все напитки утром!</p>";
-        });
+        // Отправка заказа
+        submitOrderBtn.addEventListener('click', () => {
+            const orderItems = [];
+            const tableNumber = tableNumberInput.value;
 
-        // Обработчик для кнопки "Авторизоваться"
-        authorizeBtn.addEventListener('click', () => {
-            const user = Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                output.innerHTML = `<p>Добро пожаловать, ${user.first_name} ${user.last_name || ''}!</p><p>ID пользователя: ${user.id}</p><p>Номер телефона не предоставлен Telegram API напрямую.</p>`;
-            } else {
-                output.innerHTML = "<p>Авторизация не выполнена. Пожалуйста, предоставьте номер телефона в настройках Telegram.</p>";
+            if (!tableNumber) {
+                alert('Пожалуйста, введите номер стола.');
+                return;
             }
+
+            // Сбор данных из формы заказа
+            orderForm.querySelectorAll('input[type="number"]').forEach(input => {
+                const quantity = parseInt(input.value);
+                const itemName = input.getAttribute('data-item');
+                if (quantity > 0) {
+                    orderItems.push({ name: itemName, quantity });
+                }
+            });
+
+            if (orderItems.length === 0) {
+                alert('Пожалуйста, выберите хотя бы одно блюдо.');
+                return;
+            }
+
+            // Отображение данных заказа
+            menuScreen.classList.add('hidden');
+            output.classList.remove('hidden');
+            output.innerHTML = `<h2>Ваш заказ:</h2><p>Стол №${tableNumber}</p><ul>` +
+                orderItems.map(item => `<li>${item.name}: ${item.quantity} шт.</li>`).join('') +
+                `</ul><p>Спасибо за заказ! Мы скоро его доставим.</p>`;
         });
     </script>
 </body>
